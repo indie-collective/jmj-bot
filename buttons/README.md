@@ -1,0 +1,1 @@
+Funny buttons, based on the (instantsfun.es) website. http://feoche.github.io/buttons

@@ -8,3 +8,7 @@ Responds to the following commands:
  - button [sound name] 
 
 Sounds are from the Buttons project by @feoche (http://github.com/feoche/buttons)
+
+## Warning!
+
+Currently the Discord API token is stored in config.json. Avoid pushing it to remote at all costs!

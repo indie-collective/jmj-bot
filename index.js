@@ -10,13 +10,20 @@ const client = new Discord.Client();
 client.once('ready', () => {
   console.log('Ready!');
 
+  client.user.setActivity('de la propagande soviétique', { type: 'LISTENING' });
+
+  client.on('guildMemberAdd', async member => {
+    const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
+    if (!channel) return;
+
+    channel.send(`Bienvenue à toi ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site https://indieco.xyz et d'adhérer à l'asso si tu veux nous soutenir !`);
+  });
+
   client.on('message', async message => {
     const taggedUser = message.mentions.users.first();
-    
+
     const args = message.content.slice(prefix.length).split(' ');
     const command = args.shift().toLowerCase();
-    
-    console.log([message.author.username, message.content].join(': '));
 
     if (command === 'ping') {
       message.channel.send('Pong.');
@@ -24,11 +31,11 @@ client.once('ready', () => {
 
     if (command === 'button') {
       if (!message.guild) {
-        message.channel.send('Only works in guilds!');
+        message.channel.send('Déso, pas déso, mais ça fonctionne que dans un serveur !');
         return;
       }
 
-      if (message.member.voiceChannel) {
+      if (message.member.voice.channel) {
         const results = filter(buttons, args[0], {
           key: 'title',
           maxResults: 5,
@@ -37,17 +44,17 @@ client.once('ready', () => {
         if (results.length === 0) {
           return;
         }
-  
-        const connection = await message.member.voiceChannel.join();        
-        const dispatcher = connection.playStream(resolve('./buttons/sounds/', results[0].fileName + '.mp3'))
 
-        dispatcher.on('end', () => {
-          dispatcher.destroy();
-          message.member.voiceChannel.leave();
+        const connection = await message.member.voice.channel.join();
+        const dispatcher = connection.play(resolve('./buttons/sounds/', results[0].fileName + '.mp3'));
+
+        dispatcher.on('start', () => console.log(`Playing sound ${results[0].fileName}`));
+
+        dispatcher.on('finish', () => {
+          connection.disconnect();
         });
-        
       } else {
-        message.reply('You need to join a voice channel first!');
+        message.reply("Si tu veux faire du bruit, rejoins d'abord un channel voix !");
       }
     }
   });

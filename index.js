@@ -29,6 +29,14 @@ client.once('ready', () => {
       message.channel.send('Pong.');
     }
 
+    if (command === 'marco') {
+      message.channel.send('POLO !');
+    }
+
+    if (command === 'photo') {
+      message.channel.send('Tu veux ma photo ?', {files: ['./jmj.png']});
+    }
+
     if (command === 'button') {
       if (!message.guild) {
         message.channel.send('Déso, pas déso, mais ça fonctionne que dans un serveur !');

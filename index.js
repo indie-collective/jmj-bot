@@ -5,21 +5,120 @@ const { filter } = require('fuzzaldrin');
 const { prefix, token } = require('./config.json');
 const buttons = require('./buttons/json/data.json');
 
-const client = new Discord.Client();
+const client = new Discord.Client({ intents: new Discord.Intents(Discord.Intents.ALL) });
 
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log('Ready!');
 
   client.user.setActivity('de la propagande soviétique', { type: 'LISTENING' });
 
-  client.on('guildMemberAdd', async member => {
-    const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
-    if (!channel) return;
+  if (client.application) {
+    console.log('Registering slash commands');
 
-    channel.send(`Bienvenue à toi ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site https://indieco.xyz et d'adhérer à l'asso si tu veux nous soutenir !`);
+    const commands = [
+      {
+        name: 'ping',
+        description: 'Répond Pong.',
+      },
+      {
+        name: 'marco',
+        description: 'Répond POLO!',
+      },
+      {
+        name: 'photo',
+        description: 'Reçois une belle photo de JMJ!',
+      },
+      {
+        name: 'button',
+        description: 'Joue un son sur le channel voix.',
+        options: [
+          {
+            name: 'nom',
+            type: 'STRING',
+            description: 'Le nom du fichier qui sera joué',
+            required: true,
+          },
+        ],
+      },
+    ];
+
+    await client.application.commands.set(commands);
+
+    // set guild commands
+    // const registeredCommands = await client.guilds.cache
+    //   .get('84687138729259008') // IC's discord ID
+    //   .commands.set([commands[3]]);
+  }
+
+  client.on('interaction', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    if (interaction.commandName === 'ping') await interaction.reply('Pong.');
+    else if (interaction.commandName === 'marco')
+      await interaction.reply('POLO !');
+    else if (interaction.commandName === 'photo') {
+      const embed = new Discord.MessageEmbed().attachFiles(['jmj.png']);
+
+      await interaction.reply(embed);
+    } else if (interaction.commandName === 'button') {
+      if (!interaction.guild) {
+        interaction.reply(
+          'Déso, pas déso, mais ça fonctionne que dans un serveur !',
+          { ephemeral: true }
+        );
+        return;
+      }
+
+      if (interaction.member.voice.channel) {
+        const results = filter(buttons, interaction.options.first().value, {
+          key: 'title',
+          maxResults: 5,
+        });
+
+        if (results.length === 0) {
+          return;
+        }
+
+        const connection = await interaction.member.voice.channel.join();
+        const dispatcher = connection.play(
+          resolve('./buttons/sounds/', results[0].fileName + '.mp3')
+        );
+
+        dispatcher.on('start', () => {
+          console.log(`Playing sound ${results[0].fileName}`);
+          interaction.reply(`${interaction.options.first().value} -> ${results[0].title} (${results[0].fileName})`);
+        });
+
+        dispatcher.on('finish', () => {
+          connection.disconnect();
+        });
+
+        dispatcher.on('error', (err) => {
+          interaction.reply('Erreur de lecture :(', { ephemeral: true });
+          console.error(err);
+          connection.disconnect();
+        });
+      } else {
+        interaction.reply(
+          "Si tu veux faire du bruit, rejoins d'abord un channel voix !",
+          { ephemeral: true }
+        );
+      }
+    }
   });
 
-  client.on('message', async message => {
+  client.on('guildMemberAdd', async (member) => {
+    const channel = member.guild.channels.cache.find(
+      (ch) => ch.name === 'member-log'
+    );
+    if (!channel) return;
+
+    channel.send(
+      `Bienvenue à toi ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site https://indieco.xyz et d'adhérer à l'asso si tu veux nous soutenir !`
+    );
+  });
+
+  client.on('message', async (message) => {
     const taggedUser = message.mentions.users.first();
 
     const args = message.content.slice(prefix.length).split(' ');
@@ -34,12 +133,14 @@ client.once('ready', () => {
     }
 
     if (command === 'photo') {
-      message.channel.send('Tu veux ma photo ?', {files: ['./jmj.png']});
+      message.channel.send('Tu veux ma photo ?', { files: ['./jmj.png'] });
     }
 
     if (command === 'button') {
       if (!message.guild) {
-        message.channel.send('Déso, pas déso, mais ça fonctionne que dans un serveur !');
+        message.channel.send(
+          'Déso, pas déso, mais ça fonctionne que dans un serveur !'
+        );
         return;
       }
 
@@ -54,15 +155,21 @@ client.once('ready', () => {
         }
 
         const connection = await message.member.voice.channel.join();
-        const dispatcher = connection.play(resolve('./buttons/sounds/', results[0].fileName + '.mp3'));
+        const dispatcher = connection.play(
+          resolve('./buttons/sounds/', results[0].fileName + '.mp3')
+        );
 
-        dispatcher.on('start', () => console.log(`Playing sound ${results[0].fileName}`));
+        dispatcher.on('start', () =>
+          console.log(`Playing sound ${results[0].fileName}`)
+        );
 
         dispatcher.on('finish', () => {
           connection.disconnect();
         });
       } else {
-        message.reply("Si tu veux faire du bruit, rejoins d'abord un channel voix !");
+        message.reply(
+          "Si tu veux faire du bruit, rejoins d'abord un channel voix !"
+        );
       }
     }
   });

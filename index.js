@@ -107,6 +107,17 @@ client.once('ready', async () => {
     }
   });
 
+  client.on('guildCreate', async (guild) => {
+    try {
+      const emoji = await guild.emojis.create('./emojimj.png', 'jmj');
+
+      console.log(`Emoji set the guild ${guild.name}!`);
+    }
+    catch (err) {
+      console.error(`Failed to set the emoji for guild ${guild.name}.`);
+    }
+  });
+
   client.on('guildMemberAdd', async (member) => {
     const channel = member.guild.channels.cache.find(
       (ch) => ch.id === '581081596107685898' // welcome channel for IC Discord

@@ -1,4 +1,6 @@
 {
   "prefix": "!",
-  "token": ""
+  "token": "",
+  "twitch_client_id": "",
+  "twitch_client_secret": ""
 }

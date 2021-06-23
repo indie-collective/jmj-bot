@@ -2,15 +2,24 @@ const { resolve } = require('path');
 const Discord = require('discord.js');
 const { filter } = require('fuzzaldrin');
 
+const { createTwitchESClient } = require('./twitch');
+
 const { prefix, token } = require('./config.json');
 const buttons = require('./buttons/json/data.json');
 
-const client = new Discord.Client({ intents: new Discord.Intents(Discord.Intents.ALL) });
+const client = new Discord.Client({
+  intents: new Discord.Intents(Discord.Intents.ALL),
+});
+
+const defaultActivity = {
+  text: 'de la propagande soviétique',
+  options: { type: 'LISTENING' }
+};
 
 client.once('ready', async () => {
   console.log('Ready!');
 
-  client.user.setActivity('de la propagande soviétique', { type: 'LISTENING' });
+  client.user.setActivity(defaultActivity.text, defaultActivity.options);
 
   if (client.application) {
     console.log('Registering slash commands');
@@ -86,7 +95,11 @@ client.once('ready', async () => {
 
         dispatcher.on('start', () => {
           console.log(`Playing sound ${results[0].fileName}`);
-          interaction.reply(`${interaction.options.first().value} -> ${results[0].title} (${results[0].fileName})`);
+          interaction.reply(
+            `${interaction.options.first().value} -> ${results[0].title} (${
+              results[0].fileName
+            })`
+          );
         });
 
         dispatcher.on('finish', () => {
@@ -112,8 +125,7 @@ client.once('ready', async () => {
       const emoji = await guild.emojis.create('./emojimj.png', 'jmj');
 
       console.log(`Emoji set the guild ${guild.name}!`);
-    }
-    catch (err) {
+    } catch (err) {
       console.error(`Failed to set the emoji for guild ${guild.name}.`);
     }
   });
@@ -183,6 +195,57 @@ client.once('ready', async () => {
         );
       }
     }
+  });
+
+  const jmjId = '699423675';
+  const icId = '91203175';
+
+  const twitchES = createTwitchESClient([
+    { type: 'channel.follow', condition: { broadcaster_user_id: jmjId } },
+    { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
+    { type: 'stream.online', condition: { broadcaster_user_id: icId } },
+    { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
+  ]);
+
+  twitchES.on('channel.follow', async (event) => {
+    console.log(`${event.user_name} followed ${event.broadcaster_user_name}.`);
+
+    const staffChannel = await client.channels.cache.find(
+      (channel) => (channel.id = '84687138729259008') // #staff on IC
+    );
+
+    if (event.broadcaster_user_login === 'jeanmicheljam') {
+      staffChannel.send(
+        `Oh putain, y a ${event.user_name} qui m'a follow sur Twitch.`
+      );
+    } else if (event.broadcaster_user_login === 'indiecollective') {
+      staffChannel.send(
+        `On remercie ${event.user_name} pour son follow Twitch.`
+      );
+    }
+  });
+
+  twitchES.on('stream.online', async (event) => {
+    console.log(`${event.broadcaster_user_name} is live!`);
+
+    const generalChannel = await client.channels.cache.find(
+      (channel) => channel.id === '448938598545227807' // #general on IC
+    );
+
+    if (event.broadcaster_user_login === 'indiecollective') {
+      generalChannel.send(
+        `Les gens, Indie Collective est en live sur Twitch !!! https://twitch.tv/indiecollective`
+      );
+
+      client.user.setActivity('regarde ses potes en live', {
+        url: 'https://twitch.tv/indiecollective',
+        type: 'WATCHING',
+      });
+    }
+  });
+
+  twitchES.on('stream.offline', async (event) => {
+    client.user.setActivity(defaultActivity.text, defaultActivity.options);
   });
 });
 

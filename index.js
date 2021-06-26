@@ -2,8 +2,10 @@ const { resolve } = require('path');
 const Discord = require('discord.js');
 const { filter } = require('fuzzaldrin');
 
-const { prefix, token } = require('./config.json');
 const buttons = require('./buttons/json/data.json');
+
+const { DISCORD_TOKEN } = process.env;
+const PREFIX = '!';
 
 const client = new Discord.Client({ intents: new Discord.Intents(Discord.Intents.ALL) });
 
@@ -132,7 +134,7 @@ client.once('ready', async () => {
   client.on('message', async (message) => {
     const taggedUser = message.mentions.users.first();
 
-    const args = message.content.slice(prefix.length).split(' ');
+    const args = message.content.slice(PREFIX.length).split(' ');
     const command = args.shift().toLowerCase();
 
     if (command === 'ping') {
@@ -186,4 +188,4 @@ client.once('ready', async () => {
   });
 });
 
-client.login(token);
+client.login(DISCORD_TOKEN);

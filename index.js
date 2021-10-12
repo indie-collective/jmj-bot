@@ -1,125 +1,58 @@
-const { resolve } = require('path');
-const Discord = require('discord.js');
-const { filter } = require('fuzzaldrin');
+const fs = require('fs');
+const { Client, Intents, Collection } = require('discord.js');
 
 const { createTwitchESClient } = require('./twitch');
-const buttons = require('./buttons/json/data.json');
 
 const { DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
 
-const client = new Discord.Client({
-  intents: new Discord.Intents(Discord.Intents.ALL),
-});
-
 const defaultActivity = {
   text: 'de la propagande soviétique',
-  options: { type: 'LISTENING' }
+  options: { type: 'LISTENING' },
 };
+
+const client = new Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_VOICE_STATES,
+  ],
+});
+
+// Storing commands on the client
+client.commands = new Collection();
+const commandFiles = fs
+  .readdirSync('./commands')
+  .filter((file) => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.data.name, command);
+}
+
+// Executing commands on the client
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isCommand()) return;
+
+  const command = client.commands.get(interaction.commandName);
+
+  if (!command) return;
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(error);
+    return interaction.reply({
+      content: 'Oups, il y a eu un problème avec la commande !',
+      ephemeral: true,
+    });
+  }
+});
 
 client.once('ready', async () => {
   console.log('Ready!');
 
   client.user.setActivity(defaultActivity.text, defaultActivity.options);
-
-  if (client.application) {
-    console.log('Registering slash commands');
-
-    const commands = [
-      {
-        name: 'ping',
-        description: 'Répond Pong.',
-      },
-      {
-        name: 'marco',
-        description: 'Répond POLO!',
-      },
-      {
-        name: 'photo',
-        description: 'Reçois une belle photo de JMJ!',
-      },
-      {
-        name: 'button',
-        description: 'Joue un son sur le channel voix.',
-        options: [
-          {
-            name: 'nom',
-            type: 'STRING',
-            description: 'Le nom du fichier qui sera joué',
-            required: true,
-          },
-        ],
-      },
-    ];
-
-    await client.application.commands.set(commands);
-
-    // set guild commands
-    // const registeredCommands = await client.guilds.cache
-    //   .get('84687138729259008') // IC's discord ID
-    //   .commands.set([commands[3]]);
-  }
-
-  client.on('interaction', async (interaction) => {
-    if (!interaction.isCommand()) return;
-
-    if (interaction.commandName === 'ping') await interaction.reply('Pong.');
-    else if (interaction.commandName === 'marco')
-      await interaction.reply('POLO !');
-    else if (interaction.commandName === 'photo') {
-      const embed = new Discord.MessageEmbed().attachFiles(['jmj.png']);
-
-      await interaction.reply(embed);
-    } else if (interaction.commandName === 'button') {
-      if (!interaction.guild) {
-        interaction.reply(
-          'Déso, pas déso, mais ça fonctionne que dans un serveur !',
-          { ephemeral: true }
-        );
-        return;
-      }
-
-      if (interaction.member.voice.channel) {
-        const results = filter(buttons, interaction.options.first().value, {
-          key: 'title',
-          maxResults: 5,
-        });
-
-        if (results.length === 0) {
-          return;
-        }
-
-        const connection = await interaction.member.voice.channel.join();
-        const dispatcher = connection.play(
-          resolve('./buttons/sounds/', results[0].fileName + '.mp3')
-        );
-
-        dispatcher.on('start', () => {
-          console.log(`Playing sound ${results[0].fileName}`);
-          interaction.reply(
-            `${interaction.options.first().value} -> ${results[0].title} (${
-              results[0].fileName
-            })`
-          );
-        });
-
-        dispatcher.on('finish', () => {
-          connection.disconnect();
-        });
-
-        dispatcher.on('error', (err) => {
-          interaction.reply('Erreur de lecture :(', { ephemeral: true });
-          console.error(err);
-          connection.disconnect();
-        });
-      } else {
-        interaction.reply(
-          "Si tu veux faire du bruit, rejoins d'abord un channel voix !",
-          { ephemeral: true }
-        );
-      }
-    }
-  });
 
   client.on('guildCreate', async (guild) => {
     try {
@@ -137,64 +70,20 @@ client.once('ready', async () => {
     );
     if (!channel) return;
 
-    channel.send(
-      `Bienvenue à toi ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site https://indieco.xyz et d'adhérer à l'asso si tu veux nous soutenir !`
-    );
+    channel.send({
+      content: `On accueille ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site https://indieco.xyz et d'adhérer à l'asso si tu veux nous soutenir !`,
+      embeds: [],
+    });
   });
 
-  client.on('message', async (message) => {
+  client.on('messageCreate', async (message) => {
     const taggedUser = message.mentions.users.first();
 
     const args = message.content.slice(PREFIX.length).split(' ');
     const command = args.shift().toLowerCase();
 
-    if (command === 'ping') {
-      message.channel.send('Pong.');
-    }
-
     if (command === 'marco') {
       message.channel.send('POLO !');
-    }
-
-    if (command === 'photo') {
-      message.channel.send('Tu veux ma photo ?', { files: ['./jmj.png'] });
-    }
-
-    if (command === 'button') {
-      if (!message.guild) {
-        message.channel.send(
-          'Déso, pas déso, mais ça fonctionne que dans un serveur !'
-        );
-        return;
-      }
-
-      if (message.member.voice.channel) {
-        const results = filter(buttons, args[0], {
-          key: 'title',
-          maxResults: 5,
-        });
-
-        if (results.length === 0) {
-          return;
-        }
-
-        const connection = await message.member.voice.channel.join();
-        const dispatcher = connection.play(
-          resolve('./buttons/sounds/', results[0].fileName + '.mp3')
-        );
-
-        dispatcher.on('start', () =>
-          console.log(`Playing sound ${results[0].fileName}`)
-        );
-
-        dispatcher.on('finish', () => {
-          connection.disconnect();
-        });
-      } else {
-        message.reply(
-          "Si tu veux faire du bruit, rejoins d'abord un channel voix !"
-        );
-      }
     }
   });
 

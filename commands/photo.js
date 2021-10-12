@@ -16,6 +16,12 @@ module.exports = {
           footer: {
             text: "L'abus de JMJ est dangereux pour la santé, à consommer avec modération.",
           },
+          fields: [
+            { name: 'Statut', value: "Mascotte d'Indie Collective." },
+            { name: 'Orientation', value: 'À gauche', inline: true },
+            { name: 'Sexe', value: 'Oui', inline: true },
+            { name: 'Bras', value: 'Non', inline: true },
+          ]
         },
       ],
       content: 'Tu veux ma photo ?',

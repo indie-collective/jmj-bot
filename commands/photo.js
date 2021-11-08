@@ -20,7 +20,7 @@ module.exports = {
             { name: 'Statut', value: "Mascotte d'Indie Collective." },
             { name: 'Orientation', value: 'À gauche', inline: true },
             { name: 'Sexe', value: 'Oui', inline: true },
-            { name: 'Bras', value: 'Non', inline: true },
+            { name: 'Bras', value: '1/2', inline: true },
           ]
         },
       ],

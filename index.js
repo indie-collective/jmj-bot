@@ -72,7 +72,7 @@ client.once('ready', async () => {
     if (!channel) return;
 
     channel.send({
-      content: `On accueille ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site https://indieco.xyz et d'adhérer à l'asso si tu veux nous soutenir !`,
+      content: `Salut ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site <https://indieco.xyz> et d'adhérer à l'asso si tu veux nous soutenir !`,
       embeds: [],
     });
   });
@@ -117,6 +117,8 @@ client.once('ready', async () => {
   });
 
   twitchES.on('stream.online', async (event) => {
+    if (event.type !== 'live') return;
+
     console.log(`${event.broadcaster_user_name} is live!`);
 
     const generalChannel = await client.channels.cache.find(
@@ -125,7 +127,9 @@ client.once('ready', async () => {
 
     if (event.broadcaster_user_login === 'indiecollective') {
       generalChannel.send(
-        `Les gens, Indie Collective est en live sur Twitch !!! https://twitch.tv/indiecollective`
+        `Les gens, Indie Collective est en live sur Twitch !
+
+        ➡️ <https://twitch.tv/indiecollective>`
       );
 
       client.user.setActivity('regarde ses potes en live', {

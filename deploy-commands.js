@@ -16,11 +16,35 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: '9' }).setToken(DISCORD_TOKEN);
 
+// IC's discord ID
+const guildId = '84687138729259008';
+
+// remove guild commands
+// rest
+//   // IC's discord ID
+//   .get(Routes.applicationGuildCommands(DISCORD_APP_ID, guildId))
+//   .then((data) => {
+//     const promises = [];
+//     for (const command of data) {
+//       const deleteUrl = `${Routes.applicationGuildCommands(
+//         DISCORD_APP_ID,
+//         guildId
+//       )}/${command.id}`;
+//       promises.push(rest.delete(deleteUrl));
+//     }
+//     return Promise.all(promises);
+//   });
+
+// guild commands
+// rest
+//   .put(Routes.applicationGuildCommands(DISCORD_APP_ID, guildId), {
+//     body: commands,
+//   })
+//   .then(() => console.log('Successfully registered application commands.'))
+//   .catch(console.error);
+
+// application commands
 rest
-  // IC's discord ID
-  // .put(Routes.applicationGuildCommands(DISCORD_APP_ID, '84687138729259008'), {
-  //   body: commands,
-  // })
   .put(Routes.applicationCommands(DISCORD_APP_ID), { body: commands })
   .then(() => console.log('Successfully registered application commands.'))
   .catch(console.error);

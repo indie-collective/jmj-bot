@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { join } = require('path');
 const {
   SlashCommandBuilder,
@@ -11,7 +12,9 @@ const {
   createAudioResource,
 } = require('@discordjs/voice');
 
-const buttons = require('../buttons/json/data.json');
+const buttons = fs.readdirSync('./buttons/json')
+  .filter(f => f.endsWith('.json'))
+  .flatMap(file => require(`../buttons/json/${file}`));
 
 const player = createAudioPlayer();
 

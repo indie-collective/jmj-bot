@@ -42,7 +42,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('buttons')
     .setDescription(
-      'Cherche parmi les boutons disponbile et joue un son sur le channel voix.'
+      'Cherche parmi les boutons disponibles et joue un son sur le channel voix.'
     )
     .addStringOption(
       new SlashCommandStringOption()

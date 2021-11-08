@@ -33,11 +33,15 @@ for (const file of commandFiles) {
 
 // Executing commands on the client
 client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
+  if (!interaction.isCommand() && !interaction.isAutocomplete()) return;
 
   const command = client.commands.get(interaction.commandName);
 
   if (!command) return;
+
+  if (interaction.isAutocomplete()) {
+    return command.showAutocomplete(interaction);
+  }
 
   try {
     await command.execute(interaction);

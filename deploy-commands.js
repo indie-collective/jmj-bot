@@ -33,14 +33,16 @@ const guildId = '84687138729259008';
 //       promises.push(rest.delete(deleteUrl));
 //     }
 //     return Promise.all(promises);
-//   });
+//   })
+//   .then(() => console.log('Successfully removed guild commands.'))
+//   .catch(console.error);
 
 // guild commands
 // rest
 //   .put(Routes.applicationGuildCommands(DISCORD_APP_ID, guildId), {
 //     body: commands,
 //   })
-//   .then(() => console.log('Successfully registered application commands.'))
+//   .then(() => console.log('Successfully registered guild commands.'))
 //   .catch(console.error);
 
 // application commands

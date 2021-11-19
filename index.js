@@ -133,12 +133,12 @@ client.once('ready', async () => {
       generalChannel.send(
         `Les gens, Indie Collective est en live sur Twitch !
 
-        ➡️ <https://twitch.tv/indiecollective>`
+➡️ <https://twitch.tv/indiecollective>`
       );
 
-      client.user.setActivity('regarde ses potes en live', {
+      client.user.setActivity('avec ses potes sur Twitch', {
         url: 'https://twitch.tv/indiecollective',
-        type: 'WATCHING',
+        type: 'STREAMING',
       });
     }
   });

@@ -2,6 +2,7 @@ const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
 
 const { createTwitchESClient } = require('./twitch');
+const twitterClient = require('./twitter');
 
 const { DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
@@ -139,6 +140,13 @@ client.once('ready', async () => {
       client.user.setActivity('avec ses potes sur Twitch', {
         url: 'https://twitch.tv/indiecollective',
         type: 'STREAMING',
+      });
+
+      // POST to twitter
+      twitterClient.v2.post('tweets', {
+        text: `Les gens, @IndieColle est en live sur Twitch !
+
+⬇️⬇️⬇️ https://twitch.tv/indiecollective`,
       });
     }
   });

@@ -1,6 +1,7 @@
 const TES = require('tesjs');
 
-const { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } = process.env;
+const { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, TWITCH_WEBHOOK_SECRET } =
+  process.env;
 
 const callbackBaseURL = 'https://jmj.indieco.xyz';
 
@@ -12,6 +13,7 @@ function createTwitchESClient(eventsToSubscribeTo) {
     },
     listener: {
       baseURL: callbackBaseURL,
+      secret: TWITCH_WEBHOOK_SECRET,
     },
   });
 

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
+const { default: fetch } = require('node-fetch');
 const express = require('express');
 const http = require('http');
 
@@ -184,6 +185,22 @@ app.use('/webhooks', require('./webhooks/helloasso'));
 
 // serve static files
 app.use(express.static('website'));
+
+// proxy call to google translate api
+app.get('/tts', async (req, res) => {
+  const { text = '' } = req.query;
+
+  // it seems there is an error 400 when length > 200
+  const response = await fetch(
+    `https://translate.google.com/translate_tts?client=tw-ob&q=${text}&tl=fr`
+  );
+
+  const buffer = await response.arrayBuffer();
+
+  // send blob response
+  res.set('Content-Type', 'audio/mpeg');
+  res.send(Buffer.from(buffer, 'binary'));
+});
 
 const server = http.createServer(app);
 

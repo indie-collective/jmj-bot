@@ -1,4 +1,4 @@
-const ws = new WebSocket('ws://localhost:8080');
+const ws = new WebSocket('wss://' + window.location.host);
 
 ws.onopen = function () {
   console.log('Connected to server');
@@ -12,6 +12,8 @@ ws.onmessage = function (event) {
   } else if (type === 'twitch') {
     if (data.reward.title === 'JMJ') {
       playJMJ();
+    } else if (data.reward.title === 'Apprends-moi Jamy !') {
+      playHelpMeJamy(data.user_name);
     }
   }
 };
@@ -85,4 +87,57 @@ async function playJMJ() {
   divJMJ.classList.remove('visible');
 
   await wait(1000);
+}
+
+async function playHelpMeJamy(name) {
+  console.log('Play Help Me Jamy');
+  const container = document.getElementById('help-me-jamy');
+  const spanAlertFollowerName = document.getElementById('alert-username');
+
+  let tts = new Audio();
+  document.body.appendChild(tts);
+
+  async function setTTS() {
+    const res = await fetch(
+      'https://fr.wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&prop=extracts&exsentences=1&explaintext=1&format=json&origin=*'
+    );
+    const data = await res.json();
+
+    const { title, extract } = Object.values(data.query.pages)[0];
+
+    const spokenText = `C'est quoi ${title} ? Eh bien, c'est très simple, ${extract}`;
+    tts.src = `/tts?text=${spokenText}`;
+    tts.playbackRate = 1.5;
+  }
+
+  await setTTS();
+
+  tts.onerror = function (err) {
+    console.log('An error occured loading TTS');
+    setTTS();
+  };
+
+  await new Promise((resolve) => (tts.oncanplay = resolve));
+
+  const video = document.getElementById('alert-jamy-video');
+
+  // show
+  spanAlertFollowerName.innerText = name;
+  container.classList.add('visible');
+
+  await new Promise((resolve) => {
+    video.onended = function () {
+      tts.onended = function () {
+        resolve();
+      };
+
+      tts.play();
+    };
+
+    video.play();
+  });
+
+  // hide
+  container.classList.remove('visible');
+  tts.remove();
 }

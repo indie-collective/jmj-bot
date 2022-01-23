@@ -7,7 +7,9 @@ ws.onopen = function () {
 ws.onmessage = function (event) {
   const { type, data } = JSON.parse(event.data);
 
-  if (type === 'twitch') {
+  if (type === 'helloasso') {
+    playHelloAsso(data.name, data.donation, data.type);
+  } else if (type === 'twitch') {
     if (data.reward.title === 'JMJ') {
       playJMJ();
     }
@@ -28,6 +30,47 @@ function wait(ms) {
   });
 }
 
+async function playHelloAsso(name, donation, type) {
+  console.log('Play HelloAsso');
+  const divAlertFollower = document.getElementById('alert-helloasso');
+  const spanAlertFollowerName = document.getElementById('alert-username');
+  const spanAlertAction = document.getElementById('alert-action');
+  const audioAlertSound = document.getElementById('alert-sound');
+  const donationImg = document.getElementById('alert-helloasso-img-donation');
+  const membershipImg = document.getElementById(
+    'alert-helloasso-img-membership'
+  );
+
+  // show
+  spanAlertFollowerName.innerText = name;
+
+  if (type === 'membership') {
+    spanAlertAction.innerText = " rejoint l'association";
+    spanAlertAction.innerText += donation
+      ? ' et fait un don de ' + donation + '€.'
+      : '.';
+
+    donationImg.style.display = 'none';
+    membershipImg.style.display = '';
+  } else if (type === 'donation') {
+    spanAlertAction.innerText = ' fait un don de ' + donation + '€.';
+
+    donationImg.style.display = '';
+    membershipImg.style.display = 'none';
+  } else {
+    spanAlertAction.innerText = ' a encore fait tout bugger.';
+  }
+
+  divAlertFollower.classList.add('visible');
+  audioAlertSound.play();
+
+  await wait(10000);
+
+  // hide
+  divAlertFollower.classList.remove('visible');
+
+  await wait(1000);
+}
 
 async function playJMJ() {
   console.log('Play JMJ');

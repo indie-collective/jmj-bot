@@ -180,6 +180,7 @@ client.once('ready', async () => {
 client.login(DISCORD_TOKEN);
 
 app.use(express.json());
+app.use('/webhooks', require('./webhooks/helloasso'));
 
 // serve static files
 app.use(express.static('website'));

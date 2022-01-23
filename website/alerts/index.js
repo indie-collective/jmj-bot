@@ -7,6 +7,11 @@ ws.onopen = function () {
 ws.onmessage = function (event) {
   const { type, data } = JSON.parse(event.data);
 
+  if (type === 'twitch') {
+    if (data.reward.title === 'JMJ') {
+      playJMJ();
+    }
+  }
 };
 
 ws.onerror = function () {
@@ -21,4 +26,20 @@ function wait(ms) {
   return new Promise(function (resolve, reject) {
     setTimeout(resolve, ms);
   });
+}
+
+
+async function playJMJ() {
+  console.log('Play JMJ');
+  const divJMJ = document.getElementById('jmj');
+
+  // show
+  divJMJ.classList.add('visible');
+
+  await wait(7000);
+
+  // hide
+  divJMJ.classList.remove('visible');
+
+  await wait(1000);
 }

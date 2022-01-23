@@ -11,6 +11,14 @@ Responds to the following commands:
 
 Sounds are from the Buttons project by @feoche (http://github.com/feoche/buttons)
 
-## Warning!
+## Twitch authorization
 
-Currently the Discord API token is stored in config.json. Avoid pushing it to remote at all costs!
+IC needs to authorize an app to work. To do so open this URL on your browser and click on the authorize button:
+
+```
+https://id.twitch.tv/oauth2/authorize?
+  response_type=code
+  &client_id=<CLIENT_ID>
+  &redirect_uri=http://localhost
+  &scope=channel:read:redemptions
+```

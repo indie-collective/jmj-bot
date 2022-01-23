@@ -1,10 +1,14 @@
 const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
 const express = require('express');
+const http = require('http');
 
 const { createTwitchESClient } = require('./twitch');
 const twitterClient = require('./twitter');
 const wss = require('./ws');
+
+// launch the server
+const app = express();
 
 const { DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
@@ -103,7 +107,11 @@ client.once('ready', async () => {
     { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
     { type: 'stream.online', condition: { broadcaster_user_id: icId } },
     { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
-  ]);
+    {
+      type: 'channel.channel_points_custom_reward_redemption.add',
+      condition: { broadcaster_user_id: icId },
+    },
+  ], app);
 
   twitchES.on('channel.follow', async (event) => {
     console.log(`${event.user_name} followed ${event.broadcaster_user_name}.`);
@@ -156,23 +164,32 @@ client.once('ready', async () => {
   twitchES.on('stream.offline', async (event) => {
     client.user.setActivity(defaultActivity.text, defaultActivity.options);
   });
+
+  // receive channel points redemption and send to alerts page
+  twitchES.on(
+    'channel.channel_points_custom_reward_redemption.add',
+    async (event) => {
+      wss.sendMessage({
+        type: 'twitch',
+        data: event,
+      });
+    }
+  );
 });
 
 client.login(DISCORD_TOKEN);
 
-// launch the server
-const app = express();
+app.use(express.json());
 
-app.on('upgrade', (request, socket, head) => {
+// serve static files
+app.use(express.static('website'));
+
+const server = http.createServer(app);
+
+server.on('upgrade', (request, socket, head) => {
   wss.handleUpgrade(request, socket, head, (websocket) => {
     wss.emit('connection', websocket, request);
   });
 });
 
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/website/index.html');
-});
-
-app.listen(80, () => console.log(`Started web server on port 80.`));
+server.listen(8080, () => console.log(`Started web server on port 8080.`));

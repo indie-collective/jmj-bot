@@ -7,3 +7,15 @@ body {
   width: 100%;
   height: 100%;
 }
+
+
+#jmj {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  transition: cubic-bezier(.45,.05,.55,.95) 5s all;
+}
+
+#jmj.visible {
+  top: 80%;
+}

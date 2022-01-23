@@ -1,8 +1,10 @@
 const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
+const express = require('express');
 
 const { createTwitchESClient } = require('./twitch');
 const twitterClient = require('./twitter');
+const wss = require('./ws');
 
 const { DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
@@ -157,3 +159,20 @@ client.once('ready', async () => {
 });
 
 client.login(DISCORD_TOKEN);
+
+// launch the server
+const app = express();
+
+app.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (websocket) => {
+    wss.emit('connection', websocket, request);
+  });
+});
+
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/website/index.html');
+});
+
+app.listen(80, () => console.log(`Started web server on port 80.`));

@@ -1,30 +1,48 @@
-const ws = new WebSocket('wss://' + window.location.host);
+function connect() {
+  const ws = new WebSocket('wss://' + window.location.host);
 
-ws.onopen = function () {
-  console.log('Connected to server');
-};
+  function heartbeat() {
+    clearTimeout(this.pingTimeout);
 
-ws.onmessage = function (event) {
-  const { type, data } = JSON.parse(event.data);
-
-  if (type === 'helloasso') {
-    playHelloAsso(data.name, data.donation, data.type);
-  } else if (type === 'twitch') {
-    if (data.reward.title === 'JMJ') {
-      playJMJ();
-    } else if (data.reward.title === 'Apprends-moi Jamy !') {
-      playHelpMeJamy(data.user_name);
-    }
+    this.pingTimeout = setTimeout(() => {
+      this.close();
+    }, 30000 + 1000);
   }
-};
 
-ws.onerror = function () {
-  console.log('An error occured');
-};
+  ws.onopen = function () {
+    console.log('Connected to server');
+    heartbeat();
+  };
 
-ws.onclose = function () {
-  console.log('Disconnected from server');
-};
+  ws.onmessage = function (event) {
+    const { type, data } = JSON.parse(event.data);
+
+    if (type === 'helloasso') {
+      playHelloAsso(data.name, data.donation, data.type);
+    } else if (type === 'twitch') {
+      if (data.reward.title === 'JMJ') {
+        playJMJ();
+      } else if (data.reward.title === 'Apprends-moi Jamy !') {
+        playHelpMeJamy(data.user_name);
+      }
+    }
+  };
+
+  ws.onerror = function (err) {
+    console.log('An error occured', err.message);
+  };
+
+  ws.onclose = function () {
+    console.log('Disconnected from server, reconnecting...');
+    clearTimeout(this.pingTimeout);
+
+    setTimeout(function () {
+      connect();
+    }, 1000);
+  };
+}
+
+connect();
 
 function wait(ms) {
   return new Promise(function (resolve, reject) {

@@ -12,10 +12,9 @@ body {
 
 .alert {
   position: fixed;
-  width: 600px;
+  width: 800px;
   display: flex;
   align-items: center;
-  background: #fff;
   transition: cubic-bezier(.68,-0.55,.27,1.55) all 0.4s;
   opacity: 0;
   transform: translate(0, -50px) scale(0);
@@ -35,7 +34,7 @@ body {
 .alert-text {
   width: 100%;
   padding: 10px 20px;
-  font-size: 20pt;
+  font-size: 24pt;
   font-family: Montserrat, sans-serif;
   font-weight: 700;
   line-height: 1.5em;

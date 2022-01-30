@@ -1,17 +1,8 @@
 function connect() {
   const ws = new WebSocket('wss://' + window.location.host);
 
-  function heartbeat() {
-    clearTimeout(this.pingTimeout);
-
-    this.pingTimeout = setTimeout(() => {
-      this.close();
-    }, 30000 + 1000);
-  }
-
   ws.onopen = function () {
     console.log('Connected to server');
-    heartbeat();
   };
 
   ws.onmessage = function (event) {
@@ -34,7 +25,6 @@ function connect() {
 
   ws.onclose = function () {
     console.log('Disconnected from server, reconnecting...');
-    clearTimeout(this.pingTimeout);
 
     setTimeout(function () {
       connect();

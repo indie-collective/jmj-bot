@@ -3,6 +3,8 @@ const { Client, Intents, Collection } = require('discord.js');
 const { default: fetch } = require('node-fetch');
 const express = require('express');
 const http = require('http');
+const { Readable } = require('stream');
+const ffmpeg = require('fluent-ffmpeg');
 
 const { createTwitchESClient } = require('./twitch');
 const twitterClient = require('./twitter');
@@ -195,11 +197,21 @@ app.get('/tts', async (req, res) => {
     `https://translate.google.com/translate_tts?client=tw-ob&q=${text}&tl=fr`
   );
 
-  const buffer = await response.arrayBuffer();
+  const buffer = await response.buffer();
 
   // send blob response
-  res.set('Content-Type', 'audio/mpeg');
-  res.send(Buffer.from(buffer, 'binary'));
+  res.set('Content-Type', 'audio/ogg');
+
+  ffmpeg(Readable.from(buffer))
+    .format('ogg')
+    // setup event handlers
+    .on('end', function () {
+      console.log('file has been converted succesfully');
+    })
+    .on('error', function (err) {
+      console.log('an error happened: ' + err.message);
+    })
+    .pipe(res, { end: true });
 });
 
 const server = http.createServer(app);

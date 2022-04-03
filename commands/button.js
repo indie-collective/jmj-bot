@@ -15,6 +15,10 @@ const {
 const buttons = fs.readdirSync('./buttons/json')
   .filter(f => f.endsWith('.json'))
   .flatMap(file => require(`../buttons/json/${file}`));
+const buttonNames = buttons.map((b) => ({
+  ...b,
+  name: `${b.title} (${b.fileName})`,
+}));
 
 const player = createAudioPlayer();
 
@@ -71,12 +75,12 @@ module.exports = {
     if (interaction.options.getFocused(true).name !== 'nom') return;
 
     interaction.respond(
-      filter(buttons, interaction.options.getString('nom'), {
-        key: 'title',
+      filter(buttonNames, interaction.options.getString('nom'), {
+        key: 'name',
         maxResults: 25,
       }).map((result) => ({
         name: result.title,
-        value: result.fileName,
+        value: result.name,
       }))
     );
   },
@@ -93,7 +97,7 @@ module.exports = {
 
       if (interaction.member.voice.channel) {
         const results = filter(buttons, interaction.options.getString('nom'), {
-          key: 'title',
+          key: 'fileName',
           maxResults: 5,
         });
 

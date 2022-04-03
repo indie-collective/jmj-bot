@@ -8,6 +8,7 @@ const ffmpeg = require('fluent-ffmpeg');
 
 const { createTwitchESClient } = require('./twitch');
 const twitterClient = require('./twitter');
+const helloasso = require('./helloasso');
 const wss = require('./ws');
 
 // launch the server
@@ -105,16 +106,19 @@ client.once('ready', async () => {
   const jmjId = '699423675';
   const icId = '91203175';
 
-  const twitchES = createTwitchESClient([
-    { type: 'channel.follow', condition: { broadcaster_user_id: jmjId } },
-    { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
-    { type: 'stream.online', condition: { broadcaster_user_id: icId } },
-    { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
-    {
-      type: 'channel.channel_points_custom_reward_redemption.add',
-      condition: { broadcaster_user_id: icId },
-    },
-  ], app);
+  const twitchES = createTwitchESClient(
+    [
+      { type: 'channel.follow', condition: { broadcaster_user_id: jmjId } },
+      { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
+      { type: 'stream.online', condition: { broadcaster_user_id: icId } },
+      { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
+      {
+        type: 'channel.channel_points_custom_reward_redemption.add',
+        condition: { broadcaster_user_id: icId },
+      },
+    ],
+    app
+  );
 
   twitchES.on('channel.follow', async (event) => {
     console.log(`${event.user_name} followed ${event.broadcaster_user_name}.`);
@@ -178,6 +182,41 @@ client.once('ready', async () => {
       });
     }
   );
+
+  // receive helloasso alert and send to discord
+  helloasso.on('membership', async (event) => {
+    console.log(
+      `${event.payer.firstName} ${event.payer.lastName} joined the org.`
+    );
+
+    const staffChannel = await client.channels.cache.find(
+      (channel) => (channel.id = '84687138729259008') // #staff on IC
+    );
+
+    const donation = event.items.find((item) => item.type === 'Donation');
+
+    if (donation) {
+      staffChannel.send(
+        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer et de donner ${donation.total} !`
+      );
+    } else {
+      staffChannel.send(
+        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer !`
+      );
+    }
+  });
+
+  helloasso.on('donation', async (event) => {
+    console.log(`${event.payer.firstName} ${event.payer.lastName} donated.`);
+
+    const staffChannel = await client.channels.cache.find(
+      (channel) => (channel.id = '84687138729259008') // #staff on IC
+    );
+
+    staffChannel.send(
+      `${payer.firstName} ${payer.lastName} vient de faire un don de ${data.donation}€ !`
+    );
+  });
 });
 
 client.login(DISCORD_TOKEN);

@@ -2,28 +2,32 @@ const wss = require('../ws');
 const express = require('express');
 const router = express.Router();
 
+const helloasso = require('../helloasso');
+
 router.post('/helloasso', (req, res) => {
-  console.log('got notification', req.body.data);
+  const { data, eventType } = req.body;
 
-  const { data, orderType } = req.body;
-
-  if (orderType === 'Payment') {
+  if (eventType === 'Payment') {
     const { payer, items } = data;
 
     const membership = items.find((item) => item.type === 'Membership');
     const donation = items.find((item) => item.type === 'Donation');
 
-    // push data to frontend via websocket
+    // emit event for discord & co and push data to frontend via websocket
     if (membership) {
+      helloasso.emit('membership', data);
+
       wss.sendMessage({
         type: 'helloasso',
         data: {
           type: 'membership',
           name: payer.firstName,
-          donation: donation.total,
+          donation: donation?.total,
         },
       });
     } else if (donation) {
+      helloasso.emit('donation', data);
+
       wss.sendMessage({
         type: 'helloasso',
         data: {

@@ -79,8 +79,8 @@ module.exports = {
         key: 'name',
         maxResults: 25,
       }).map((result) => ({
-        name: result.title,
-        value: result.name,
+        name: result.name,
+        value: result.fileName,
       }))
     );
   },

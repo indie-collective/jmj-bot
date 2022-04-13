@@ -5,6 +5,6 @@ module.exports = {
     .setName('galette')
     .setDescription("Gloire à la Sainte Galette-Saucisse !"),
   async execute(interaction) {
-    return interaction.reply(':galette:'.repeat(27));
+    return interaction.reply('<:galette:914291029883101195>'.repeat(27));
   },
 };

@@ -6,8 +6,8 @@ module.exports = {
     .setDescription("Les réseaux sociaux d'Indie Collective !"),
   async execute(interaction) {
     return interaction.reply(`Hésitez pas à suivre notre merveilleuse association sur tous les réseaux sociaux :
-➡️ https://linktr.ee/indiecollective
+➡️  <https://linktr.ee/indiecollective>
 
-Mais surtout, suivez-moi sur Twitter <https://twitter.com/jeanmichel_jam> !`);
+Mais surtout, suivez-moi sur Twitter : <https://twitter.com/jeanmichel_jam> !`);
   },
 };

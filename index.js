@@ -1,8 +1,18 @@
 const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
+const { default: fetch } = require('node-fetch');
+const express = require('express');
+const http = require('http');
+const { Readable } = require('stream');
+const ffmpeg = require('fluent-ffmpeg');
 
 const { createTwitchESClient } = require('./twitch');
 const twitterClient = require('./twitter');
+const helloasso = require('./helloasso');
+const wss = require('./ws');
+
+// launch the server
+const app = express();
 
 const { DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
@@ -96,12 +106,19 @@ client.once('ready', async () => {
   const jmjId = '699423675';
   const icId = '91203175';
 
-  const twitchES = createTwitchESClient([
-    { type: 'channel.follow', condition: { broadcaster_user_id: jmjId } },
-    { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
-    { type: 'stream.online', condition: { broadcaster_user_id: icId } },
-    { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
-  ]);
+  const twitchES = createTwitchESClient(
+    [
+      { type: 'channel.follow', condition: { broadcaster_user_id: jmjId } },
+      { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
+      { type: 'stream.online', condition: { broadcaster_user_id: icId } },
+      { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
+      {
+        type: 'channel.channel_points_custom_reward_redemption.add',
+        condition: { broadcaster_user_id: icId },
+      },
+    ],
+    app
+  );
 
   twitchES.on('channel.follow', async (event) => {
     console.log(`${event.user_name} followed ${event.broadcaster_user_name}.`);
@@ -154,6 +171,94 @@ client.once('ready', async () => {
   twitchES.on('stream.offline', async (event) => {
     client.user.setActivity(defaultActivity.text, defaultActivity.options);
   });
+
+  // receive channel points redemption and send to alerts page
+  twitchES.on(
+    'channel.channel_points_custom_reward_redemption.add',
+    async (event) => {
+      wss.sendMessage({
+        type: 'twitch',
+        data: event,
+      });
+    }
+  );
+
+  // receive helloasso alert and send to discord
+  helloasso.on('membership', async (event) => {
+    console.log(
+      `${event.payer.firstName} ${event.payer.lastName} joined the org.`
+    );
+
+    const staffChannel = await client.channels.cache.find(
+      (channel) => (channel.id = '84687138729259008') // #staff on IC
+    );
+
+    const donation = event.items.find((item) => item.type === 'Donation');
+
+    if (donation) {
+      staffChannel.send(
+        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer et de donner ${donation.total} !`
+      );
+    } else {
+      staffChannel.send(
+        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer !`
+      );
+    }
+  });
+
+  helloasso.on('donation', async (event) => {
+    console.log(`${event.payer.firstName} ${event.payer.lastName} donated.`);
+
+    const staffChannel = await client.channels.cache.find(
+      (channel) => (channel.id = '84687138729259008') // #staff on IC
+    );
+
+    staffChannel.send(
+      `${payer.firstName} ${payer.lastName} vient de faire un don de ${data.donation}€ !`
+    );
+  });
 });
 
 client.login(DISCORD_TOKEN);
+
+app.use(express.json());
+app.use('/webhooks', require('./webhooks/helloasso'));
+
+// serve static files
+app.use(express.static('website'));
+
+// proxy call to google translate api
+app.get('/tts', async (req, res) => {
+  const { text = '' } = req.query;
+
+  // it seems there is an error 400 when length > 200
+  const response = await fetch(
+    `https://translate.google.com/translate_tts?client=tw-ob&q=${text}&tl=fr`
+  );
+
+  const buffer = await response.buffer();
+
+  // send blob response
+  res.set('Content-Type', 'audio/ogg');
+
+  ffmpeg(Readable.from(buffer))
+    .format('ogg')
+    // setup event handlers
+    .on('end', function () {
+      console.log('file has been converted succesfully');
+    })
+    .on('error', function (err) {
+      console.log('an error happened: ' + err.message);
+    })
+    .pipe(res, { end: true });
+});
+
+const server = http.createServer(app);
+
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (websocket) => {
+    wss.emit('connection', websocket, request);
+  });
+});
+
+server.listen(8080, () => console.log(`Started web server on port 8080.`));

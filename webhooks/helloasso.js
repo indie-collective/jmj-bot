@@ -1,8 +1,9 @@
-const wss = require('../ws');
 const express = require('express');
-const router = express.Router();
 
+const wss = require('../ws');
 const helloasso = require('../helloasso');
+
+const router = express.Router();
 
 router.post('/helloasso', (req, res) => {
   const { data, eventType } = req.body;

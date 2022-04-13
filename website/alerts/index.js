@@ -102,8 +102,8 @@ async function playHelpMeJamy(name) {
   const container = document.getElementById('help-me-jamy');
   const spanAlertFollowerName = document.getElementById('alert-username');
 
-  let tts = new Audio();
-  document.body.appendChild(tts);
+  const tts = document.getElementById('tts');
+  const video = document.getElementById('alert-jamy-video');
 
   async function setTTS() {
     const res = await fetch(
@@ -114,7 +114,8 @@ async function playHelpMeJamy(name) {
     const { title, extract } = Object.values(data.query.pages)[0];
 
     const spokenText = `C'est quoi ${title} ? Eh bien, c'est très simple, ${extract}`;
-    tts.src = `/tts?text=${spokenText}`;
+    // tts.src = `${window.location.protocol}//${window.location.host}/tts?text=${spokenText}`;
+    tts.src = `https://jmj.indieco.xyz/tts?text=${spokenText}`;
     tts.playbackRate = 1.5;
   }
 
@@ -127,11 +128,11 @@ async function playHelpMeJamy(name) {
 
   await new Promise((resolve) => (tts.oncanplay = resolve));
 
-  const video = document.getElementById('alert-jamy-video');
-
   // show
   spanAlertFollowerName.innerText = name;
   container.classList.add('visible');
+
+  video.play();
 
   await new Promise((resolve) => {
     video.onended = function () {
@@ -141,13 +142,10 @@ async function playHelpMeJamy(name) {
 
       tts.play();
     };
-
-    video.play();
   });
 
   // hide
   container.classList.remove('visible');
-  tts.remove();
 }
 
 class Queue {

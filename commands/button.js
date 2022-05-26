@@ -40,36 +40,17 @@ player.on('error', (err) => {
   player.connection.destroy();
 });
 
-const command = {
-    name: 'button',
-    description: 'Joue un son sur le channel voix.',
-    options: [
-      {
-        type: 3,
-        name: 'nom',
-        description: 'Le nom du fichier qui sera joué',
-        required: true,
-        autocomplete: true,
-      },
-    ],
-  }
-
 module.exports = {
-  // data: new SlashCommandBuilder()
-  //   .setName('button')
-  //   .setDescription('Joue un son sur le channel voix.')
-  //   .addStringOption(
-  //     new SlashCommandStringOption()
-  //       .setName('nom')
-  //       .setDescription('Le nom du fichier qui sera joué')
-  //       .setRequired(true)
-  //       // .setAutocomplete(true)
-  //   ),
-  data: {
-    // Autocomplete is not supported in builders for now
-    ...command,
-    toJSON: () => command,
-  },
+  data: new SlashCommandBuilder()
+    .setName('button')
+    .setDescription('Joue un son sur le channel voix.')
+    .addStringOption(
+      new SlashCommandStringOption()
+        .setName('nom')
+        .setDescription('Le nom du fichier qui sera joué')
+        .setRequired(true)
+        .setAutocomplete(true)
+    ),
 
   async showAutocomplete(interaction) {
     if (interaction.options.getFocused(true).name !== 'nom') return;

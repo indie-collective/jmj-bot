@@ -197,7 +197,7 @@ client.once('ready', async () => {
 
     if (donation) {
       staffChannel.send(
-        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer et de donner ${donation.total} !`
+        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer et de donner ${donation.amount} !`
       );
     } else {
       staffChannel.send(

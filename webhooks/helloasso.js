@@ -23,7 +23,7 @@ router.post('/helloasso', (req, res) => {
         data: {
           type: 'membership',
           name: payer.firstName,
-          donation: donation?.total,
+          donation: donation ? donation.amount / 100 : undefined,
         },
       });
     } else if (donation) {
@@ -34,7 +34,7 @@ router.post('/helloasso', (req, res) => {
         data: {
           type: 'donation',
           name: payer.firstName,
-          donation: donation.total,
+          donation: donation.amount / 100,
         },
       });
     }

@@ -70,6 +70,10 @@ client.once('ready', async () => {
 
   client.user.setActivity(defaultActivity);
 
+  const staffChannel = await client.channels.cache.find(
+    (channel) => (channel.id = '84687138729259008') // #staff on IC
+  );
+
   client.on('guildCreate', async (guild) => {
     try {
       const emoji = await guild.emojis.create('./emojimj.png', 'jmj');
@@ -118,10 +122,6 @@ client.once('ready', async () => {
 
   twitchES.on('channel.follow', async (event) => {
     console.log(`${event.user_name} followed ${event.broadcaster_user_name}.`);
-
-    const staffChannel = await client.channels.cache.find(
-      (channel) => (channel.id = '84687138729259008') // #staff on IC
-    );
 
     if (event.broadcaster_user_login === 'jeanmicheljam') {
       staffChannel.send(
@@ -185,29 +185,69 @@ client.once('ready', async () => {
       `${event.payer.firstName} ${event.payer.lastName} joined the org.`
     );
 
-    const staffChannel = await client.channels.cache.find(
-      (channel) => (channel.id = '84687138729259008') // #staff on IC
-    );
+    if (event.discord) {
+      const guild = client.guilds.cache.get('84687138729259008'); // IC guild
+      const user = guild.members.cache.find(
+        (member) =>
+          `${member.user.username}#${member.user.discord}`.toLowerCase() ===
+          event.discord.toLowerCase()
+      );
+
+      // found user, adding the role 'Adhérent'
+      if (user) {
+        user.roles.add('694986277556060271');
+      }
+    }
 
     const donation = event.items.find((item) => item.type === 'Donation');
 
     if (donation) {
       staffChannel.send(
-        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer et de donner ${donation.amount} !`
+        `${event.payer.firstName} ${event.payer.lastName} <${
+          event.payer.email
+        }> ${
+          event.discord ? `@${event.discord}` : ''
+        } vient d'adhérer et de donner ${donation.amount} !`
       );
     } else {
       staffChannel.send(
-        `${event.payer.firstName} ${event.payer.lastName} vient d'adhérer !`
+        `${event.payer.firstName} ${event.payer.lastName} <${
+          event.payer.email
+        }> ${event.discord ? `@${event.discord}` : ''} vient d'adhérer !`
       );
     }
   });
 
+  helloasso.on('membership.expired', async (event) => {
+    console.log(
+      `${event.user.firstName} ${event.user.lastName} is not a member anymore.`
+    );
+
+    if (event.discord) {
+      const guild = client.guilds.cache.get('84687138729259008'); // IC guild
+      const user = guild.members.cache.find(
+        (member) =>
+          `${member.user.username}#${member.user.discord}`.toLowerCase() ===
+          event.discord.toLowerCase()
+      );
+
+      // found user, removing the role 'Adhérent'
+      if (user) {
+        user.roles.remove('694986277556060271');
+        return;
+      }
+    }
+
+    // didn't found it, notifying the staff
+    staffChannel.send(
+      `${event.user.firstName} ${event.user.lastName} <${
+        event.payer.email
+      }> ${event.discord ? `@${event.discord}` : ''} n'est plus adhérent !`
+    );
+  });
+
   helloasso.on('donation', async (event) => {
     console.log(`${event.payer.firstName} ${event.payer.lastName} donated.`);
-
-    const staffChannel = await client.channels.cache.find(
-      (channel) => (channel.id = '84687138729259008') // #staff on IC
-    );
 
     staffChannel.send(
       `${payer.firstName} ${payer.lastName} vient de faire un don de ${data.donation}€ !`

@@ -62,11 +62,15 @@ async function playHelloAsso(name, donation, type) {
 
     donationImg.style.display = 'none';
     membershipImg.style.display = '';
+
+    audioAlertSound.src = 'niahniahniah.mp3';
   } else if (type === 'donation') {
     spanAlertAction.innerText = ' fait un don de ' + donation + '€.';
 
     donationImg.style.display = '';
     membershipImg.style.display = 'none';
+
+    audioAlertSound.src = 'coin.mp3';
   } else {
     spanAlertAction.innerText = ' a encore fait tout bugger.';
   }

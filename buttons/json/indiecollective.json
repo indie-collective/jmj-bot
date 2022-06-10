@@ -55,6 +55,21 @@
     "keywords": ["peter"]
   },
   {
+    "title": "Peter indés top",
+    "fileName": "peterindestop",
+    "keywords": ["peter"]
+  },
+  {
+    "title": "Peter venez au Stunfest",
+    "fileName": "petervenezaustun",
+    "keywords": ["peter"]
+  },
+  {
+    "title": "Peter à l'année prochaine",
+    "fileName": "peteranneeprochaine",
+    "keywords": ["peter"]
+  },
+  {
     "title": "Francois bonjour",
     "fileName": "francoisbonjour",
     "keywords": ["francois"]
@@ -68,6 +83,16 @@
     "title": "Alexis salut",
     "fileName": "alexissalut",
     "keywords": ["alexis"]
+  },
+  {
+    "title": "Florent sympa quoi",
+    "fileName": "florentsympaquoi",
+    "keywords": ["florent"]
+  },
+  {
+    "title": "Florent bon cru",
+    "fileName": "florentboncru",
+    "keywords": ["florent"]
   },
   {
     "title": "Rituel galette saucisse",

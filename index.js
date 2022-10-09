@@ -71,7 +71,7 @@ client.once('ready', async () => {
   client.user.setActivity(defaultActivity);
 
   const staffChannel = await client.channels.cache.find(
-    (channel) => (channel.id = '84687138729259008') // #staff on IC
+    (channel) => channel.id == '84687138729259008' // #staff on IC
   );
 
   client.on('guildCreate', async (guild) => {
@@ -240,9 +240,9 @@ client.once('ready', async () => {
 
     // didn't found it, notifying the staff
     staffChannel.send(
-      `${event.user.firstName} ${event.user.lastName} <${
-        event.payer.email
-      }> ${event.discord ? `@${event.discord}` : ''} n'est plus adhérent !`
+      `${event.user.firstName} ${event.user.lastName} <${event.payer.email}> ${
+        event.discord ? `@${event.discord}` : ''
+      } n'est plus adhérent !`
     );
   });
 

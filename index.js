@@ -209,13 +209,13 @@ client.once('ready', async () => {
 
     const donation = event.items.find((item) => item.type === 'Donation');
 
-    if (donation) {
+    if (donation && donation.amount) {
       staffChannel.send(
         `${event.payer.firstName} ${event.payer.lastName} <${
           event.payer.email
         }> ${
           event.discord ? `@${event.discord}` : ''
-        } vient d'adhérer et de donner ${donation.amount} !`
+        } vient d'adhérer et de donner ${donation.amount / 100}€ !`
       );
     } else {
       staffChannel.send(

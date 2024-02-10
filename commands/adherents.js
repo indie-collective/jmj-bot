@@ -1,7 +1,4 @@
-const {
-  SlashCommandBuilder,
-  blockQuote,
-} = require('@discordjs/builders');
+const { SlashCommandBuilder, blockQuote } = require('@discordjs/builders');
 const { PermissionFlagsBits } = require('discord-api-types/v9');
 const { OAuth2 } = require('fetch-mw-oauth2');
 
@@ -50,10 +47,17 @@ module.exports = {
     return await interaction.reply({
       content: `Voici la liste de mes fans (${users.length}) :
 ${blockQuote(
-  users.map(
-    ({ registered, name, email, discord }) =>
-      `- ${registered.toLocaleDateString()} ${name} <${email}>${discord ? (' @' + discord) : ''}`
-  ).join('\n')
+  users
+    .slice(-10)
+    .map(
+      ({ registered, name, email, discord }) =>
+        `- ${registered.toLocaleDateString()} ${name} <${email}>${
+          discord ? ' @' + discord : ''
+        }
+
+Voir la liste complète : <https://admin.helloasso.com/indie-collective/adhesions/adhesion-indie-collective/statistiques`
+    )
+    .join('\n')
 )}`,
       ephemeral: true,
     });

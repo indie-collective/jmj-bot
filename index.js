@@ -18,8 +18,8 @@ const { DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
 
 const defaultActivity = {
-  text: 'de la propagande soviétique',
-  options: { type: 'LISTENING' },
+  name: "Indie & Co, l'émission de l'asso",
+  type: 'WATCHING',
 };
 
 const client = new Client({
@@ -68,7 +68,7 @@ client.on('interactionCreate', async (interaction) => {
 client.once('ready', async () => {
   console.log('Ready!');
 
-  client.user.setActivity(defaultActivity.text, defaultActivity.options);
+  client.user.setActivity(defaultActivity);
 
   client.on('guildCreate', async (guild) => {
     try {

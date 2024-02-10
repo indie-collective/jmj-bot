@@ -80,20 +80,16 @@ client.once('ready', async () => {
     }
   });
 
-  client.on('guildMemberAdd', async (member) => {
-    const channel = member.guild.channels.cache.find(
-      (ch) => ch.id === '581081596107685898' // welcome channel for IC Discord
-    );
-    if (!channel) return;
-
-    channel.send({
-      content: `Salut ${member} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé), je sais pas encore faire grand chose mais je peux au moins te conseiller d'aller faire un tour sur notre site <https://indieco.xyz> et d'adhérer à l'asso si tu veux nous soutenir !`,
-      embeds: [],
-    });
-  });
-
   client.on('messageCreate', async (message) => {
     const taggedUser = message.mentions.users.first();
+
+    // welcome message from JMJ
+    if (message.system && message.type === 'GUILD_MEMBER_JOIN') {
+      return message.reply({
+        content: `Salut ${message.author} ! Ici Jean-Michel Jam pour te servir (tu peux m'appeler JMJ en privé). N'hésite pas à te présenter, aller faire un tour sur notre site <https://indieco.xyz> pour découvrir notre asso et adhérer si tu veux nous soutenir !`,
+        embeds: [],
+      });
+    }
 
     const args = message.content.slice(PREFIX.length).split(' ');
     const command = args.shift().toLowerCase();

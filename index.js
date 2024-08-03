@@ -14,7 +14,7 @@ const wss = require('./ws');
 // launch the server
 const app = express();
 
-const { DISCORD_TOKEN } = process.env;
+const { PORT, DISCORD_TOKEN } = process.env;
 const PREFIX = '!';
 
 const defaultActivity = {
@@ -265,4 +265,4 @@ server.on('upgrade', (request, socket, head) => {
   });
 });
 
-server.listen(8080, () => console.log(`Started web server on port 8080.`));
+server.listen(PORT, () => console.log(`Started web server on port ${PORT}.`));

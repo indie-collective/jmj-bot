@@ -66,6 +66,7 @@ function createTwitchESClient(eventsToSubscribeTo, app) {
         }
 
         // resub
+        console.log(`Resubscribing to ${event.type}`);
 
         await tes.subscribe(event.type, event.condition, event.version);
 
@@ -74,7 +75,7 @@ function createTwitchESClient(eventsToSubscribeTo, app) {
           event.condition
         );
       } catch (err) {
-        console.log(err);
+        console.log(event.type, err);
       }
     });
   });

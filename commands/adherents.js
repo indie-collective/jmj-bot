@@ -45,7 +45,7 @@ module.exports = {
     });
 
     return await interaction.reply({
-      content: `Voici la liste de mes fans (${users.length}) : [Voir la liste complète](https://admin.helloasso.com/indie-collective/statistiques)`,
+      content: `Voici la liste de mes fans (${users.length}) : [Voir la liste complète](https://admin.helloasso.com/indie-collective/adhesions/adhesion-indie-collective/statistiques)`,
       embeds: [
         {
           description: users

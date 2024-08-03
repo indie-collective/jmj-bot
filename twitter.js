@@ -1,4 +1,4 @@
-const { TwitterApi, ETwitterStreamEvent } = require('twitter-api-v2');
+const { TwitterApi } = require('twitter-api-v2');
 
 const client = new TwitterApi({
   appKey: process.env.TWITTER_APP_KEY,

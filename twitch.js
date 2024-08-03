@@ -12,16 +12,28 @@ function createTwitchESClient(eventsToSubscribeTo, app) {
       secret: TWITCH_CLIENT_SECRET,
     },
     listener: {
+      type: 'webhook',
       baseURL: callbackBaseURL,
       secret: TWITCH_WEBHOOK_SECRET,
       server: app,
     },
+    // options: {
+    //   debug: true,
+    // },
   });
 
   // checking subscriptions already exists
-  tes.getSubscriptions().then((data) => {
+  tes.getSubscriptions().then(({ data }) => {
+    // unsubscribing all failed subs
+    data.forEach(async (sub) => {
+      if (sub.status !== 'enabled') {
+        await tes.unsubscribe(sub.id);
+      }
+    });
+
+    // ignoring existing subs or resubscribing
     eventsToSubscribeTo.forEach(async (event) => {
-      const existingSub = data.data.find(
+      const existingSub = data.find(
         (sub) =>
           sub.type === event.type &&
           sub.status === 'enabled' &&
@@ -55,7 +67,7 @@ function createTwitchESClient(eventsToSubscribeTo, app) {
 
         // resub
 
-        await tes.subscribe(event.type, event.condition);
+        await tes.subscribe(event.type, event.condition, event.version);
 
         console.log(
           `Subscription successful to ${event.type} with condition:`,

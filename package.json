@@ -12,7 +12,7 @@
     "fuzzaldrin": "^2.1.0",
     "libsodium-wrappers": "^0.7.9",
     "node-fetch": "^2.6.7",
-    "tesjs": "^0.5.1",
+    "tesjs": "1.0.3",
     "twitter-api-v2": "^1.6.5",
     "ws": "^8.4.2"
   }

@@ -104,8 +104,16 @@ client.once('ready', async () => {
 
   const twitchES = createTwitchESClient(
     [
-      { type: 'channel.follow', condition: { broadcaster_user_id: jmjId } },
-      { type: 'channel.follow', condition: { broadcaster_user_id: icId } },
+      {
+        type: 'channel.follow',
+        version: '2',
+        condition: { broadcaster_user_id: jmjId, moderator_user_id: jmjId },
+      },
+      {
+        type: 'channel.follow',
+        version: '2',
+        condition: { broadcaster_user_id: icId, moderator_user_id: icId },
+      },
       { type: 'stream.online', condition: { broadcaster_user_id: icId } },
       { type: 'stream.offline', condition: { broadcaster_user_id: icId } },
       {

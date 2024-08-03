@@ -45,20 +45,22 @@ module.exports = {
     });
 
     return await interaction.reply({
-      content: `Voici la liste de mes fans (${users.length}) :
-${blockQuote(
-  users
-    .slice(-10)
-    .map(
-      ({ registered, name, email, discord }) =>
-        `- ${registered.toLocaleDateString()} ${name} <${email}>${
-          discord ? ' @' + discord : ''
-        }
-
-Voir la liste complète : <https://admin.helloasso.com/indie-collective/adhesions/adhesion-indie-collective/statistiques`
-    )
-    .join('\n')
-)}`,
+      content: `Voici la liste de mes fans (${users.length}) : [Voir la liste complète](https://admin.helloasso.com/indie-collective/statistiques)`,
+      embeds: [
+        {
+          description: users
+            .slice(-30)
+            .map(
+              ({ registered, name, email, discord }) =>
+                `- ${registered.toLocaleDateString('fr-FR', {
+                  year: '2-digit',
+                  month: 'numeric',
+                  day: 'numeric',
+                })} ${name} <${email}>${discord ? ' @' + discord : ''}`
+            )
+            .join('\n'),
+        },
+      ],
       ephemeral: true,
     });
   },

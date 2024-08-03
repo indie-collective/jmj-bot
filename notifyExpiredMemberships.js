@@ -1,11 +1,11 @@
 /**
  * This script should be set to run every day.
  * It compares yesterday's members list with today's.
- * 
+ *
  * You can add this line in the crontab:
- * 0 7 * * * node /path/to/jmj-bot/notifyExpiredMemberships.js
+ * 0 7 * * * node /path/to/jmj-bot/notifyExpiredMemberships.js 2>&1 | systemd-cat -t expiredmembers -p info
  */
-
+require('dotenv').config();
 const { OAuth2 } = require('fetch-mw-oauth2');
 
 global.fetch = require('node-fetch');
@@ -63,10 +63,25 @@ const getExpiredMembers = async () => {
   });
 };
 
+console.log("Vérifions si des membres n'ont plus d'adhésions.");
+
 getExpiredMembers()
   .then((expired) => {
-    expired.map((item) => helloasso.emit('membership.expired', item));
+    console.log('expired memberships', expired);
+    expired.map((item) =>
+      fetch('https://jmj.indieco.xyz/webhooks/helloasso', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'MembershipExpired',
+          data: item,
+        }),
+      })
+    );
 
     process.exit(0);
   })
-  .catch((e) => process.exit(1));
+  .catch((e) => {
+    console.log(e);
+    process.exit(1);
+  });

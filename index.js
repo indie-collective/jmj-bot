@@ -193,12 +193,19 @@ client.once('ready', async () => {
       `${event.payer.firstName} ${event.payer.lastName} joined the org.`
     );
 
-    if (event.discord) {
+    const membership = event.items.find((item) => item.type === 'Membership');
+    const discordUsername = membership.customFields.find((f) =>
+      f.name.includes('Discord')
+    )?.answer;
+    const comment = membership.customFields.find((f) =>
+      f.name.includes('Remarques')
+    )?.answer;
+
+    if (discordUsername) {
       const guild = client.guilds.cache.get('84687138729259008'); // IC guild
       const user = guild.members.cache.find(
         (member) =>
-          `${member.user.username}#${member.user.discord}`.toLowerCase() ===
-          event.discord.toLowerCase()
+          `${member.user.tag}`.toLowerCase() === discordUsername.toLowerCase()
       );
 
       // found user, adding the role 'Adhérent'
@@ -214,14 +221,16 @@ client.once('ready', async () => {
         `${event.payer.firstName} ${event.payer.lastName} <${
           event.payer.email
         }> ${
-          event.discord ? `@${event.discord}` : ''
-        } vient d'adhérer et de donner ${donation.amount / 100}€ !`
+          discordUsername ? `@${discordUsername}` : ''
+        } vient d'adhérer et de donner ${donation.amount / 100}€ !
+${comment}`
       );
     } else {
       staffChannel.send(
         `${event.payer.firstName} ${event.payer.lastName} <${
           event.payer.email
-        }> ${event.discord ? `@${event.discord}` : ''} vient d'adhérer !`
+        }> ${discordUsername ? `@${discordUsername}` : ''} vient d'adhérer !
+${comment}`
       );
     }
   });
@@ -258,7 +267,7 @@ client.once('ready', async () => {
     console.log(`${event.payer.firstName} ${event.payer.lastName} donated.`);
 
     staffChannel.send(
-      `${payer.firstName} ${payer.lastName} vient de faire un don de ${data.donation}€ !`
+      `${event.payer.firstName} ${event.payer.lastName} vient de faire un don de ${data.donation}€ !`
     );
   });
 });

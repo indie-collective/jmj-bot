@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   width="260"
+   height="200"
+   id="svg10"
+   sodipodi:docname="Confusion_colour.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="2.125"
+     inkscape:cx="193.97589"
+     inkscape:cy="113.77231"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10" />
+  <path
+     d="M 47,135 C 103,154 117,139 137,125 C 160,113 176,103 226,120 L 213,160 C 188,153 168,154 142,173 C 114,194 77,192 34,175 Z"
+     style="fill:#999999"
+     id="path2" />
+  <path
+     d="M 52,200 L 0,149 L 66,123 Z"
+     style="fill:#999999"
+     id="path4" />
+  <path
+     d="M 213,64 C 159,44 143,60 123,74 C 101,86 84,96 35,79 L 49,37 C 73,46 92,45 118,26 C 147,5 185,6 226,24 Z"
+     style="fill:#2f5ec5;fill-opacity:1"
+     id="path6" />
+  <path
+     d="M 208,0 L 260,50 L 195,76 Z"
+     style="fill:#2f5ec5;fill-opacity:1"
+     id="path8" />
+</svg>
